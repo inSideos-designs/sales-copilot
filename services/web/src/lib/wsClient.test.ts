@@ -44,11 +44,11 @@ class FakeWebSocket {
 describe("SessionWebSocket", () => {
   beforeEach(() => {
     FakeWebSocket.instances = [];
-    (globalThis as unknown as { WebSocket: typeof WebSocket }).WebSocket =
-      FakeWebSocket as unknown as typeof WebSocket;
+    vi.stubGlobal("WebSocket", FakeWebSocket);
   });
 
   afterEach(() => {
+    vi.unstubAllGlobals();
     FakeWebSocket.instances = [];
   });
 

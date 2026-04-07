@@ -44,8 +44,10 @@ export class SessionWebSocket {
     };
 
     ws.onclose = (ev) => {
-      this.opts.onClose({ code: ev.code, reason: ev.reason });
+      // Tear down before notifying so a synchronous reconnect from inside
+      // the user's onClose handler sees a clean slate.
       this.ws = null;
+      this.opts.onClose({ code: ev.code, reason: ev.reason });
     };
 
     ws.onerror = (ev) => {
