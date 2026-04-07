@@ -10,11 +10,12 @@ RUN pip install --no-cache-dir uv==0.5.*
 
 WORKDIR /app
 
-# Copy project files
+# Phase 1: install third-party deps only (cacheable)
 COPY pyproject.toml uv.lock ./
-COPY src ./src
+RUN uv sync --frozen --no-dev --no-install-project
 
-# Install deps (and build local package)
+# Phase 2: install local package (invalidated only by src changes)
+COPY src ./src
 RUN uv sync --frozen --no-dev
 
 ENV PATH="/app/.venv/bin:${PATH}"
