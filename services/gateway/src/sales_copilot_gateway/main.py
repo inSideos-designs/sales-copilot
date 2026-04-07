@@ -19,6 +19,11 @@ from sales_copilot_gateway.protocol import (
 from sales_copilot_gateway.session import Session
 from sales_copilot_gateway.suggestions import canned_suggestion_stream
 
+logging.basicConfig(
+    level=os.environ.get("LOG_LEVEL", "INFO").upper(),
+    format="%(asctime)s %(levelname)-7s %(name)s %(message)s",
+)
+
 logger = logging.getLogger(__name__)
 
 app = FastAPI(title="sales-copilot-gateway", version=__version__)
