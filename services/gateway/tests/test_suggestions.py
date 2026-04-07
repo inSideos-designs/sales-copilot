@@ -31,8 +31,9 @@ async def test_rotates_through_canned_bank() -> None:
         if len(got) >= 6:
             break
 
-    # With 3 canned lines, we should see each at least once in 6 ticks
-    assert len(set(got)) >= 3
+    # With 3 canned lines, the second pass must repeat the first pass in order
+    assert len(set(got[:3])) == 3
+    assert got[:3] == got[3:6]
 
 
 async def test_respects_tick_seconds_delay() -> None:
