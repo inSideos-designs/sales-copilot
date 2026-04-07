@@ -25,3 +25,11 @@ def test_session_is_active_after_start_and_inactive_after_end() -> None:
     assert s.is_active
     s.end()
     assert not s.is_active
+
+
+def test_session_end_is_idempotent() -> None:
+    s = Session.start()
+    s.end()
+    first_ended = s.ended_at_ms
+    s.end()
+    assert s.ended_at_ms == first_ended
