@@ -11,6 +11,11 @@ FROM node:22-alpine AS build
 WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
+# NEXT_PUBLIC_* vars are baked into the client bundle at build time, not
+# read at runtime. Pass via --build-arg in CI / Cloud Build. The default
+# is the local docker-compose URL so the existing dev workflow keeps working.
+ARG NEXT_PUBLIC_GATEWAY_WS_URL=ws://localhost:8080/ws/session
+ENV NEXT_PUBLIC_GATEWAY_WS_URL=$NEXT_PUBLIC_GATEWAY_WS_URL
 RUN npm run build
 
 # --- runtime ---
