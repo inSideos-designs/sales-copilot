@@ -2,6 +2,12 @@
 
 export type SessionStatus = "idle" | "connecting" | "active" | "ended" | "error";
 
+/**
+ * UI view-model for a suggestion. Mapped from the protocol's `SuggestionMessage`
+ * by the parent container — `id` is synthesized client-side (the wire format
+ * has no stable id), and `confidence` / `tickAtMs` are dropped because the
+ * Phase 1 UI doesn't display them.
+ */
 export interface RenderedSuggestion {
   id: string;
   intent: string;

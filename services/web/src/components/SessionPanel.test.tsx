@@ -67,4 +67,18 @@ describe("SessionPanel", () => {
     fireEvent.click(screen.getByRole("button", { name: /end session/i }));
     expect(onEnd).toHaveBeenCalledOnce();
   });
+
+  it("renders the live status line with the current status", () => {
+    render(
+      <SessionPanel
+        status="connecting"
+        suggestions={[]}
+        onStart={() => {}}
+        onEnd={() => {}}
+      />,
+    );
+    const statusLine = screen.getByTestId("status-line");
+    expect(statusLine).toHaveTextContent(/status: connecting/i);
+    expect(statusLine).toHaveAttribute("aria-live", "polite");
+  });
 });
