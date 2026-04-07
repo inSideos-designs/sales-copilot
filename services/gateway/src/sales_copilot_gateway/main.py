@@ -53,7 +53,12 @@ async def _suggestion_sender(ws: WebSocket, session: Session) -> None:
             await ws.send_text(serialize_server_message(msg))
     except asyncio.CancelledError:
         raise
-    except WebSocketDisconnect:
+    except (WebSocketDisconnect, RuntimeError, OSError) as exc:
+        # send_text on a half-closed/torn-down socket can surface as
+        # WebSocketDisconnect, RuntimeError ("close already sent"), or
+        # OSError (BrokenPipeError, ConnectionResetError). All mean "stop
+        # sending" — log at debug and return cleanly.
+        logger.debug("session_id=%s sender stopped: %s", session.id, exc)
         return
 
 
