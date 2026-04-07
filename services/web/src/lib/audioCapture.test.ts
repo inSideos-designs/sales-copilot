@@ -1,4 +1,4 @@
-import { describe, expect, it, vi, beforeEach } from "vitest";
+import { describe, expect, it, vi, beforeEach, afterEach } from "vitest";
 
 import { captureMeetingTabAudio, AudioCaptureError } from "./audioCapture";
 
@@ -10,9 +10,17 @@ function setGetDisplayMedia(mock: DisplayMediaMock) {
   md.mediaDevices = { getDisplayMedia: mock };
 }
 
+function clearMediaDevices() {
+  delete (navigator as unknown as { mediaDevices?: unknown }).mediaDevices;
+}
+
 describe("captureMeetingTabAudio", () => {
   beforeEach(() => {
     setGetDisplayMedia(() => Promise.reject(new Error("not set")));
+  });
+
+  afterEach(() => {
+    clearMediaDevices();
   });
 
   it("returns the stream when an audio track is present", async () => {
@@ -51,5 +59,33 @@ describe("captureMeetingTabAudio", () => {
     await expect(captureMeetingTabAudio()).rejects.toMatchObject({
       code: "permission_denied",
     });
+  });
+
+  it("rethrows non-DOMException errors unchanged", async () => {
+    const err = new Error("network exploded");
+    setGetDisplayMedia(() => Promise.reject(err));
+
+    await expect(captureMeetingTabAudio()).rejects.toBe(err);
+  });
+
+  it("throws unsupported when getDisplayMedia is missing", async () => {
+    clearMediaDevices();
+
+    await expect(captureMeetingTabAudio()).rejects.toMatchObject({
+      code: "unsupported",
+    });
+  });
+
+  it("stops leaked tracks before throwing no_audio_track", async () => {
+    const videoTrack = { kind: "video", stop: vi.fn() };
+    const stream = {
+      getAudioTracks: () => [],
+      getVideoTracks: () => [videoTrack],
+      getTracks: () => [videoTrack],
+    } as unknown as MediaStream;
+    setGetDisplayMedia(() => Promise.resolve(stream));
+
+    await expect(captureMeetingTabAudio()).rejects.toBeInstanceOf(AudioCaptureError);
+    expect(videoTrack.stop).toHaveBeenCalledTimes(1);
   });
 });

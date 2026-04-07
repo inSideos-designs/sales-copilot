@@ -36,7 +36,9 @@ export async function captureMeetingTabAudio(): Promise<MediaStream> {
   try {
     stream = await navigator.mediaDevices.getDisplayMedia({
       audio: true,
-      // We don't need the video; browsers still require the flag.
+      // getDisplayMedia requires a video constraint even when only audio is
+      // wanted. Use a 1x1 @1fps hint so the browser doesn't spin up a full
+      // screen encoder for a track we'll immediately discard.
       video: { width: 1, height: 1, frameRate: 1 },
     });
   } catch (err) {
