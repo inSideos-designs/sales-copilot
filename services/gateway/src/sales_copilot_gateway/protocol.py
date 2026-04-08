@@ -23,6 +23,7 @@ class ProtocolError(ValueError):
 class ClientHelloMessage:
     type: Literal["client_hello"] = "client_hello"
     client_version: str = ""
+    id_token: str | None = None
 
 
 @dataclass(frozen=True)
@@ -81,7 +82,11 @@ def parse_client_message(raw: str) -> ClientMessage:
 
     msg_type = data.get("type")
     if msg_type == "client_hello":
-        return ClientHelloMessage(client_version=str(data.get("clientVersion", "")))
+        id_token_raw = data.get("idToken")
+        return ClientHelloMessage(
+            client_version=str(data.get("clientVersion", "")),
+            id_token=str(id_token_raw) if id_token_raw else None,
+        )
     if msg_type == "end_session":
         return EndSessionMessage(reason=str(data.get("reason", "")))
 

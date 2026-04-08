@@ -72,3 +72,24 @@ def test_parse_unknown_type_raises() -> None:
 
     with pytest.raises(ProtocolError):
         parse_client_message(json.dumps({"type": "totally_made_up"}))
+
+
+def test_client_hello_with_id_token() -> None:
+    raw = json.dumps(
+        {
+            "type": "client_hello",
+            "clientVersion": "0.1.0",
+            "idToken": "fake-firebase-token",
+        }
+    )
+    msg = parse_client_message(raw)
+    assert isinstance(msg, ClientHelloMessage)
+    assert msg.client_version == "0.1.0"
+    assert msg.id_token == "fake-firebase-token"
+
+
+def test_client_hello_without_id_token_defaults_to_none() -> None:
+    raw = json.dumps({"type": "client_hello", "clientVersion": "0.1.0"})
+    msg = parse_client_message(raw)
+    assert isinstance(msg, ClientHelloMessage)
+    assert msg.id_token is None
