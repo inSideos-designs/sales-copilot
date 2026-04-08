@@ -20,6 +20,7 @@ node_modules/
 dist/
 build/
 .next/
+tsconfig.tsbuildinfo
 
 # OS
 .DS_Store

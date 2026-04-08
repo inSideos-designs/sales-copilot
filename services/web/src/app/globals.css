@@ -1,0 +1,164 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+/* ---------------------------------------------------------------------------
+   Editorial Terminal — design tokens
+   --------------------------------------------------------------------------
+   A near-black warm-stone surface, single amber accent, and low-chroma
+   sentiment colors. Pairs Instrument Serif + JetBrains Mono + IBM Plex Sans.
+   ------------------------------------------------------------------------ */
+
+:root {
+  --background: oklch(0.18 0.005 80);
+  --foreground: oklch(0.97 0.005 80);
+  --card: oklch(0.21 0.006 80);
+  --card-foreground: oklch(0.97 0.005 80);
+  --popover: oklch(0.21 0.006 80);
+  --popover-foreground: oklch(0.97 0.005 80);
+  --primary: oklch(0.86 0.16 85);
+  --primary-foreground: oklch(0.18 0.005 80);
+  --secondary: oklch(0.27 0.005 80);
+  --secondary-foreground: oklch(0.97 0.005 80);
+  --muted: oklch(0.24 0.005 80);
+  --muted-foreground: oklch(0.65 0.01 80);
+  --accent: oklch(0.86 0.16 85);
+  --accent-foreground: oklch(0.18 0.005 80);
+  --destructive: oklch(0.65 0.21 25);
+  --border: oklch(1 0 0 / 8%);
+  --input: oklch(1 0 0 / 12%);
+  --ring: oklch(0.86 0.16 85 / 50%);
+  --radius: 0.125rem;
+
+  --sentiment-very-negative: oklch(0.62 0.23 25);
+  --sentiment-negative: oklch(0.71 0.20 50);
+  --sentiment-neutral: oklch(0.52 0.01 80);
+  --sentiment-positive: oklch(0.78 0.18 130);
+  --sentiment-very-positive: oklch(0.72 0.18 160);
+}
+
+.dark {
+  --background: oklch(0.13 0.005 80);
+  --foreground: oklch(0.97 0.005 80);
+  --card: oklch(0.16 0.006 80);
+  --card-foreground: oklch(0.97 0.005 80);
+  --popover: oklch(0.16 0.006 80);
+  --popover-foreground: oklch(0.97 0.005 80);
+  --primary: oklch(0.86 0.16 85);
+  --primary-foreground: oklch(0.13 0.005 80);
+  --secondary: oklch(0.22 0.005 80);
+  --secondary-foreground: oklch(0.97 0.005 80);
+  --muted: oklch(0.19 0.005 80);
+  --muted-foreground: oklch(0.62 0.01 80);
+  --accent: oklch(0.86 0.16 85);
+  --accent-foreground: oklch(0.13 0.005 80);
+  --destructive: oklch(0.65 0.21 25);
+  --border: oklch(1 0 0 / 8%);
+  --input: oklch(1 0 0 / 12%);
+  --ring: oklch(0.86 0.16 85 / 50%);
+}
+
+/* Bridge raw CSS variables to Tailwind v4 utility generator. */
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  --color-sentiment-very-negative: var(--sentiment-very-negative);
+  --color-sentiment-negative: var(--sentiment-negative);
+  --color-sentiment-neutral: var(--sentiment-neutral);
+  --color-sentiment-positive: var(--sentiment-positive);
+  --color-sentiment-very-positive: var(--sentiment-very-positive);
+
+  --font-display: var(--font-display), Georgia, serif;
+  --font-mono: var(--font-mono), ui-monospace, SFMono-Regular, monospace;
+  --font-sans: var(--font-sans), ui-sans-serif, system-ui, sans-serif;
+
+  --radius-sm: calc(var(--radius) - 2px);
+  --radius-md: var(--radius);
+  --radius-lg: calc(var(--radius) + 2px);
+  --radius-xl: calc(var(--radius) + 4px);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground font-sans antialiased;
+    /* Subtle grain texture — gives the dark surface character without
+       overwhelming the content. SVG noise pattern at low opacity. */
+    background-image:
+      linear-gradient(
+        to bottom,
+        oklch(0.13 0.005 80) 0%,
+        oklch(0.11 0.005 80) 100%
+      ),
+      url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 0.04 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    background-size: 100% 100%, 200px 200px;
+    background-attachment: fixed;
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   Custom keyframes — staggered card reveal + accent flash
+   ------------------------------------------------------------------------ */
+
+@keyframes card-rise {
+  0% {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes spine-flash {
+  0% {
+    background-color: var(--primary);
+    box-shadow: 0 0 12px var(--primary);
+  }
+  100% {
+    background-color: var(--spine-color, var(--sentiment-neutral));
+    box-shadow: 0 0 0 transparent;
+  }
+}
+
+@keyframes status-pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.4;
+  }
+}
+
+@layer utilities {
+  .animate-card-rise {
+    animation: card-rise 360ms cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+  .animate-spine-flash {
+    animation: spine-flash 1200ms ease-out both;
+  }
+  .animate-status-pulse {
+    animation: status-pulse 1.6s ease-in-out infinite;
+  }
+}

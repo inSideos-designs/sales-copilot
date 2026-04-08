@@ -1,0 +1,26 @@
+services:
+  gateway:
+    build:
+      context: ./services/gateway
+    image: sales-copilot-gateway:phase1
+    environment:
+      LOG_LEVEL: info
+    ports:
+      - "8080:8080"
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8080/health').read()"]
+      interval: 5s
+      timeout: 2s
+      retries: 5
+
+  web:
+    build:
+      context: ./services/web
+    image: sales-copilot-web:phase1
+    environment:
+      NEXT_PUBLIC_GATEWAY_WS_URL: ws://localhost:8080/ws/session
+    ports:
+      - "3000:3000"
+    depends_on:
+      gateway:
+        condition: service_healthy
