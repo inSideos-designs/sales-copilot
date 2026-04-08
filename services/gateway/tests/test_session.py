@@ -33,3 +33,17 @@ def test_session_end_is_idempotent() -> None:
     first_ended = s.ended_at_ms
     s.end()
     assert s.ended_at_ms == first_ended
+
+
+def test_session_default_user_is_none() -> None:
+    s = Session.start()
+    assert s.user is None
+
+
+def test_session_can_be_started_with_a_user() -> None:
+    from sales_copilot_gateway.auth import SessionUser
+
+    user = SessionUser(uid="u_42", email="bob@example.com", display_name="Bob")
+    s = Session.start(user=user)
+    assert s.user == user
+    assert s.user.uid == "u_42"
