@@ -39,7 +39,9 @@ def test_returns_session_user_on_valid_token(monkeypatch: pytest.MonkeyPatch) ->
     )
 
 
-def test_returns_none_when_firebase_raises(monkeypatch: pytest.MonkeyPatch) -> None:
+def test_returns_none_when_firebase_raises(
+    monkeypatch: pytest.MonkeyPatch, caplog: pytest.LogCaptureFixture
+) -> None:
     def fake_verify(token: str, **kwargs: Any) -> dict[str, Any]:
         raise ValueError("expired token")
 
@@ -50,7 +52,10 @@ def test_returns_none_when_firebase_raises(monkeypatch: pytest.MonkeyPatch) -> N
         "sales_copilot_gateway.auth._firebase_app", lambda: None
     )
 
-    assert validate_id_token("expired-token") is None
+    with caplog.at_level("WARNING", logger="sales_copilot_gateway.auth"):
+        assert validate_id_token("expired-token") is None
+
+    assert any("invalid_id_token" in rec.message for rec in caplog.records)
 
 
 def test_handles_token_with_no_email_or_name(

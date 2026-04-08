@@ -48,6 +48,10 @@ def validate_id_token(id_token: str | None) -> SessionUser | None:
         _firebase_app()
         decoded = fb_auth.verify_id_token(id_token)
     except Exception as exc:
+        # TODO(phase-3): demote ExpiredIdTokenError/RevokedIdTokenError to
+        # info level — these are routine during long-lived sessions and
+        # will flood warning logs under real traffic. Keep warning only
+        # for genuine invalid/revoked/untrusted-signature cases.
         logger.warning("invalid_id_token: %s", exc)
         return None
     return SessionUser(
