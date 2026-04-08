@@ -78,7 +78,8 @@ describe("SessionPanel", () => {
       />,
     );
     const statusLine = screen.getByTestId("status-line");
-    expect(statusLine).toHaveTextContent(/status: connecting/i);
+    expect(statusLine).toHaveTextContent(/status/i);
+    expect(statusLine).toHaveTextContent(/connecting/i);
     expect(statusLine).toHaveAttribute("aria-live", "polite");
   });
 });

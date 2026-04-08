@@ -14,9 +14,11 @@ export default function HomePage() {
   const [status, setStatus] = useState<SessionStatus>("idle");
   const [errorMessage, setErrorMessage] = useState<string | undefined>(undefined);
   const [suggestions, setSuggestions] = useState<RenderedSuggestion[]>([]);
+  const [sessionId, setSessionId] = useState<string | undefined>(undefined);
 
   const wsRef = useRef<SessionWebSocket | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
+  const sessionStartedAtRef = useRef<number | null>(null);
 
   const cleanup = useCallback(() => {
     if (wsRef.current) {
@@ -27,6 +29,7 @@ export default function HomePage() {
       streamRef.current.getTracks().forEach((t) => t.stop());
       streamRef.current = null;
     }
+    sessionStartedAtRef.current = null;
   }, []);
 
   useEffect(() => {
@@ -38,9 +41,13 @@ export default function HomePage() {
   const handleServerMessage = useCallback((msg: ServerMessage) => {
     if (msg.type === "session_started") {
       setStatus("active");
+      setSessionId(msg.sessionId);
+      sessionStartedAtRef.current = msg.startedAtMs;
       return;
     }
     if (msg.type === "suggestion") {
+      const startedAt = sessionStartedAtRef.current;
+      const offsetMs = startedAt !== null ? msg.tickAtMs - startedAt : undefined;
       setSuggestions((prev) => [
         ...prev,
         {
@@ -48,6 +55,7 @@ export default function HomePage() {
           intent: msg.intent,
           suggestion: msg.suggestion,
           sentiment: msg.sentiment,
+          tickOffsetMs: offsetMs,
         },
       ]);
       return;
@@ -61,6 +69,7 @@ export default function HomePage() {
   const handleStart = useCallback(async () => {
     setErrorMessage(undefined);
     setSuggestions([]);
+    setSessionId(undefined);
     setStatus("connecting");
 
     try {
@@ -111,6 +120,7 @@ export default function HomePage() {
         onStart={handleStart}
         onEnd={handleEnd}
         errorMessage={errorMessage}
+        sessionId={sessionId}
       />
     </main>
   );
