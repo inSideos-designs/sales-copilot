@@ -2,7 +2,7 @@
 // If you change one, change the other.
 
 export type ClientMessage =
-  | { type: "client_hello"; clientVersion: string }
+  | { type: "client_hello"; clientVersion: string; idToken?: string }
   | { type: "end_session"; reason: string };
 
 export type ServerMessage =

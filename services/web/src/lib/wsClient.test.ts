@@ -122,4 +122,44 @@ describe("SessionWebSocket", () => {
 
     expect(onClose).toHaveBeenCalledWith({ code: 1000, reason: "bye" });
   });
+
+  it("includes idToken in client_hello when provided", () => {
+    const ws = new SessionWebSocket({
+      url: "ws://example/ws/session",
+      onOpen: () => {},
+      onMessage: () => {},
+      onClose: () => {},
+    });
+    ws.connect();
+    FakeWebSocket.instances[0].emitOpen();
+
+    ws.sendClientHello("0.1.0", "fake-firebase-token");
+
+    expect(FakeWebSocket.instances[0].sent).toHaveLength(1);
+    expect(JSON.parse(FakeWebSocket.instances[0].sent[0])).toEqual({
+      type: "client_hello",
+      clientVersion: "0.1.0",
+      idToken: "fake-firebase-token",
+    });
+  });
+
+  it("omits idToken from client_hello when not provided", () => {
+    const ws = new SessionWebSocket({
+      url: "ws://example/ws/session",
+      onOpen: () => {},
+      onMessage: () => {},
+      onClose: () => {},
+    });
+    ws.connect();
+    FakeWebSocket.instances[0].emitOpen();
+
+    ws.sendClientHello("0.1.0");
+
+    const payload = JSON.parse(FakeWebSocket.instances[0].sent[0]);
+    expect(payload).toEqual({
+      type: "client_hello",
+      clientVersion: "0.1.0",
+    });
+    expect(payload).not.toHaveProperty("idToken");
+  });
 });

@@ -64,8 +64,8 @@ export class SessionWebSocket {
     this.ws.send(serializeClientMessage(msg));
   }
 
-  sendClientHello(clientVersion: string): void {
-    this.send({ type: "client_hello", clientVersion });
+  sendClientHello(clientVersion: string, idToken?: string): void {
+    this.send({ type: "client_hello", clientVersion, idToken });
   }
 
   sendEndSession(reason: string): void {
