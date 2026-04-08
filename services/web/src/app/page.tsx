@@ -3,9 +3,11 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 
 import { SessionPanel, type RenderedSuggestion, type SessionStatus } from "@/components/SessionPanel";
+import { AuthControls } from "@/components/AuthControls";
 import { captureMeetingTabAudio, AudioCaptureError } from "@/lib/audioCapture";
 import { SessionWebSocket } from "@/lib/wsClient";
 import type { ServerMessage } from "@/lib/protocol";
+import { useAuth } from "@/hooks/useAuth";
 
 const GATEWAY_URL =
   process.env.NEXT_PUBLIC_GATEWAY_WS_URL ?? "ws://localhost:8080/ws/session";
@@ -15,6 +17,8 @@ export default function HomePage() {
   const [errorMessage, setErrorMessage] = useState<string | undefined>(undefined);
   const [suggestions, setSuggestions] = useState<RenderedSuggestion[]>([]);
   const [sessionId, setSessionId] = useState<string | undefined>(undefined);
+
+  const { user } = useAuth();
 
   const wsRef = useRef<SessionWebSocket | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
@@ -84,10 +88,14 @@ export default function HomePage() {
       return;
     }
 
+    // Always re-fetch the ID token right before opening the WS — Firebase
+    // silently refreshes if the cached one is near expiry.
+    const idToken = user ? await user.getIdToken() : undefined;
+
     const ws = new SessionWebSocket({
       url: GATEWAY_URL,
       onOpen: () => {
-        ws.sendClientHello("0.1.0");
+        ws.sendClientHello("0.1.0", idToken);
       },
       onMessage: handleServerMessage,
       onClose: () => {
@@ -102,7 +110,7 @@ export default function HomePage() {
     });
     wsRef.current = ws;
     ws.connect();
-  }, [cleanup, handleServerMessage]);
+  }, [cleanup, handleServerMessage, user]);
 
   const handleEnd = useCallback(() => {
     if (wsRef.current) {
@@ -121,6 +129,7 @@ export default function HomePage() {
         onEnd={handleEnd}
         errorMessage={errorMessage}
         sessionId={sessionId}
+        authSlot={<AuthControls />}
       />
     </main>
   );
