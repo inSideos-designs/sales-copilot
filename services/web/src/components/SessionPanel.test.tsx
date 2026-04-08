@@ -82,4 +82,19 @@ describe("SessionPanel", () => {
     expect(statusLine).toHaveTextContent(/connecting/i);
     expect(statusLine).toHaveAttribute("aria-live", "polite");
   });
+
+  it("renders the auth slot in the header when provided", () => {
+    render(
+      <SessionPanel
+        status="idle"
+        suggestions={[]}
+        onStart={() => {}}
+        onEnd={() => {}}
+        authSlot={<div data-testid="auth-slot">SLOT_CONTENT</div>}
+      />,
+    );
+    const slot = screen.getByTestId("auth-slot");
+    expect(slot).toBeInTheDocument();
+    expect(slot).toHaveTextContent("SLOT_CONTENT");
+  });
 });

@@ -26,6 +26,7 @@ interface Props {
   onEnd: () => void;
   errorMessage?: string;
   sessionId?: string;
+  authSlot?: React.ReactNode;
 }
 
 const SENTIMENT_SPINE: Record<number, string> = {
@@ -85,6 +86,7 @@ export function SessionPanel({
   onEnd,
   errorMessage,
   sessionId,
+  authSlot,
 }: Props) {
   const isActive = status === "active" || status === "connecting";
 
@@ -97,6 +99,7 @@ export function SessionPanel({
             Sales <span className="italic text-primary">Copilot</span>
           </h1>
           <div className="flex items-center gap-3 font-mono text-[11px] uppercase tracking-[0.18em]">
+            {authSlot}
             {sessionId ? (
               <span className="text-muted-foreground">
                 <span className="text-foreground/50">SESS</span>{" "}
